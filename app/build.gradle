@@ -1,0 +1,37 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "eu.sesma.kuantum"
+        minSdkVersion 24
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+//    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.android.support:appcompat-v7:$support"
+    implementation "com.android.support.constraint:constraint-layout:$constraint"
+
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+//    implementation group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    implementation "com.squareup.okhttp3:okhttp:$converter_gson"
+//    implementation group: 'com.squareup.okio', name: 'okio', version: '1.14.1'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
+    implementation "com.squareup.retrofit2:converter-gson:$converter_gson"
+}
