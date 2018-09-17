@@ -1,6 +1,7 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.model
 
-import pl.qus.qotlin.Qotlin
+import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.QAsm
 import java.util.*
 
 open class QAJob (
@@ -17,13 +18,13 @@ open class QAJob (
         var calibration: QACalibration? = null,
         var error : QAError? = null,
         @Transient
-        var api: Qotlin? = null
+        var api: IbmGateway? = null
 ) {
     override fun toString(): String {
         return "$backend, id:$id, status:$status"
     }
 
-    fun onStatus(timeoutSeconds : Int,onCompleted: (QAJob) -> Unit,
+    fun onStatus(timeoutSeconds : Int, onCompleted: (QAJob) -> Unit,
                  onError: (Throwable) -> Unit = {}) {
         api?.onJobStatus(this,timeoutSeconds,onCompleted,onError) ?: throw(IllegalStateException("You have to obtain QAJob instance from submitJob method"))
     }

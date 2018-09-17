@@ -1,4 +1,4 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.model
 
 class QAError {
     val name: String = ""

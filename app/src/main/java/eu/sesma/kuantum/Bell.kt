@@ -1,25 +1,24 @@
 package eu.sesma.kuantum
 
-import android.util.Log
-import pl.qus.qotlin.*
+import eu.sesma.kuantum.cuanto.*
+import eu.sesma.kuantum.cuanto.network.IbmGateway
+import timber.log.Timber
 
-class Bell {
-
-    private val TAG = Bell::class.java.simpleName
+class Bell(private val token: String, private val qex: IbmGateway) {
 
     fun run() {
-        val qex = Qotlin()
+        val qex = IbmGateway()
 
-        qex.login("28978ff305e3cf767284a4c89a5724cf090f9a03699d685e8f5ab2394ce0d0caa736b27938f0d7b26f675347a4509cb5c3c67aebd97dde3c7e5a663947e676b8")
+        qex.login(token)
 
         qex.enumerateDevices()
 
-        Log.d(TAG, "Currently available:")
+        Timber.d("Currently available:")
         qex.devices.forEach {
             println(it)
         }
 
-        Log.d(TAG, "\nRunning Bell state experiment")
+        Timber.d("\nRunning Bell state experiment")
         qex.simulator
                 .submitJob(256, 1, qasm {
                     qreg(2)
@@ -40,7 +39,7 @@ class Bell {
                         }
                 )
 
-        Log.d(TAG, "Running quantum Fourier transform")
+        Timber.d("Running quantum Fourier transform")
         //qex.devices.firstOrNull { !it.simulator }
         qex.simulator
                 .submitJob(256, 100, qasm {
@@ -69,6 +68,5 @@ class Bell {
                 }, {
 
                 })
-
     }
 }

@@ -1,6 +1,7 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.model
 
-import pl.qus.qotlin.Qotlin
+import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.QAsm
 import java.util.Date
 
 class QADevice(var name: String) {
@@ -22,17 +23,17 @@ class QADevice(var name: String) {
     var allowQObject: Boolean = false
 
     @Transient
-    var api: Qotlin? = null
+    var api: IbmGateway? = null
 
     override fun toString(): String {
         return "$name - $description, status: $status, real:${!simulator}, qbits:$nQubits, gates:$basisGates"
     }
 
     fun submitJob(shots: Int = 1, maxCredits: Int = 1, vararg sources: QAsm): QAJob {
-        val job = QAJob(backend = this,shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
+        val job = QAJob(backend = this, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
         return api?.submitJob(job)?.apply {
             this.api = this@QADevice.api
-        } ?: throw(IllegalStateException("You have to obtain device instance from Qotlin instance"))
+        } ?: throw(IllegalStateException("You have to obtain device instance from IbmGateway instance"))
     }
 
 }

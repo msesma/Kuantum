@@ -1,4 +1,6 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.network
+
+import eu.sesma.kuantum.cuanto.model.QAResult
 
 open class QAsm (
         var qasm: String = "",

@@ -1,9 +1,12 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.network
 
-import pl.qus.qotlin.model.Const.HD_CLIENT_APP
-import pl.qus.qotlin.model.Const.HD_ENCODING
-import pl.qus.qotlin.model.Const.HD_JSON
-import pl.qus.qotlin.model.Const.HD_USER_AGENT
+import eu.sesma.kuantum.cuanto.model.QADevice
+import eu.sesma.kuantum.cuanto.model.QAJob
+import eu.sesma.kuantum.cuanto.model.QALoginResponse
+import eu.sesma.kuantum.cuanto.network.Const.HD_CLIENT_APP
+import eu.sesma.kuantum.cuanto.network.Const.HD_ENCODING
+import eu.sesma.kuantum.cuanto.network.Const.HD_JSON
+import eu.sesma.kuantum.cuanto.network.Const.HD_USER_AGENT
 import retrofit2.Call
 import retrofit2.http.*
 import retrofit2.http.Body

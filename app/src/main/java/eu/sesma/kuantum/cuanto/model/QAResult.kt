@@ -1,4 +1,4 @@
-package pl.qus.qotlin.model
+package eu.sesma.kuantum.cuanto.model
 
 import com.google.gson.annotations.SerializedName
 

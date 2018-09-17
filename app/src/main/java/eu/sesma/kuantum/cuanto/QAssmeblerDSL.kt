@@ -1,6 +1,6 @@
-package pl.qus.qotlin
+package eu.sesma.kuantum.cuanto
 
-import pl.qus.qotlin.model.QAsm
+import eu.sesma.kuantum.cuanto.network.QAsm
 
 interface Element {
     fun render(builder: StringBuilder, indent: String)
