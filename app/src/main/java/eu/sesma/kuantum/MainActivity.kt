@@ -9,6 +9,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Thread { Runnable {  Bell().run() }.run()}
+        Thread {  Bell().run()}.start()
     }
 }
