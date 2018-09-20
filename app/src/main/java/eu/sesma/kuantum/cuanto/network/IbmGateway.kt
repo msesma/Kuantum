@@ -1,11 +1,12 @@
 package eu.sesma.kuantum.cuanto.network
 
 import com.google.gson.GsonBuilder
-import okhttp3.*
-import okhttp3.logging.HttpLoggingInterceptor
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.model.StatusEnum
+import kotlinx.coroutines.experimental.coroutineScope
+import okhttp3.*
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -14,26 +15,9 @@ import java.util.concurrent.TimeoutException
 /**
  * A connection layer to an IBM Quantum Experience server.
  */
-class IbmGateway
-/**
- * Creates a session for a given user.
+class IbmGateway {
 
- */
-{
-    /**
-     * An access token for the current session.
-     */
-    private var sessionToken: String = ""
-
-    var devices = listOf<QADevice>()
-
-    private val gson = GsonBuilder()
-            .setLenient()
-            .create()
-
-    private val interceptor = HttpLoggingInterceptor().apply {
-        this.level = HttpLoggingInterceptor.Level.BODY
-    }
+    private var token: String = ""
 
     private val cookies = object : CookieJar {
         var cookies = mutableListOf<Cookie>()
@@ -45,22 +29,15 @@ class IbmGateway
         override fun loadForRequest(p0: HttpUrl?): MutableList<Cookie> {
             return cookies
         }
-
     }
-
-//    private val proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("surfproxy.de.db.com", 3128))
-
+    private val interceptor = HttpLoggingInterceptor().apply {
+        this.level = HttpLoggingInterceptor.Level.BODY
+    }
     private val okHttp = OkHttpClient.Builder()
-//            .proxy(proxy)
             .cookieJar(cookies)
             .addInterceptor { chain ->
-
                 val resp = chain.proceed(chain.request())
-
                 val body = resp.body()?.string()
-
-                //println("stat=${resp.code()} ${resp.body()!!.contentType().toString()}***$body***")
-
                 val newBody = ResponseBody.create(resp.body()!!.contentType(), body.orEmpty())
 
                 if (resp.code() == 400)
@@ -70,48 +47,59 @@ class IbmGateway
             }
             .addInterceptor(interceptor)
             .build()
-
-    private var retrofit: Retrofit = Retrofit.Builder()
+    private val gson = GsonBuilder()
+            .setLenient()
+            .create()
+    private val retrofit: Retrofit = Retrofit.Builder()
             .client(okHttp)
             .baseUrl("https://quantumexperience.ng.bluemix.net")
             .addConverterFactory(GsonConverterFactory.create(gson))
-            //.addCallAdapterFactory(instance())
             .build()
+    private val api = retrofit.create(QARetrofitInterfaceC::class.java)
 
-    private var api = retrofit.create(QARetrofitInterface::class.java)
+    var devices = listOf<QADevice>()
+    val simulator
+        get() = devices.firstOrNull { it.simulator }
+                ?: throw (IllegalStateException("Simulator not found"))
 
-    fun login(apiToken: String): Boolean {
-        val result = api.login(apiToken).execute()
-
-        return if (result.body()?.userId?.isNotEmpty() == true) {
-            sessionToken = result.body()?.id ?: ""
-            true
-        } else {
-            false
+    fun login(apiToken: String) {
+        suspend {
+            coroutineScope {
+                val result = api.login(apiToken).await()
+                if (result.body()?.userId?.isNotEmpty() == true) token = result.body()?.id.orEmpty()
+            }
         }
     }
 
     fun enumerateDevices() {
-        devices = api.listDevices(sessionToken).execute()?.body() ?: listOf()
-
-        devices.forEach {
-            it.api = this
+        suspend {
+            coroutineScope {
+                devices = api.listDevices(token).await().body() ?: listOf()
+                devices.forEach { it.api = this@IbmGateway }
+            }
         }
     }
 
-//    fun device(name : String) = devices.firstOrNull { it.name == name && it.status ==  QADeviceStatus.on } ?: throw (IllegalStateException("No such device: $name" ))
-
-    val simulator
-        get() = devices.firstOrNull { it.simulator } ?: throw (IllegalStateException("Simulator not found"))
-
-    fun submitJob(newJob: QAJob): QAJob {
-        val result = api.sendJob(sessionToken, newJob).execute()
-        return if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
+    fun submitJob(newJob: QAJob): QAJob? {
+        var qaJob: QAJob? = null
+        suspend {
+            qaJob = coroutineScope {
+                val result = api.sendJob(token, newJob).await()
+                if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
+            }
+        }
+        return qaJob
     }
 
-    private fun receiveJob(job: QAJob): QAJob {
-        val result = api.receiveJob(job.id, sessionToken).execute()
-        return if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
+    private fun receiveJob(job: QAJob): QAJob? {
+        var qaJob: QAJob? = null
+        suspend {
+            qaJob = coroutineScope {
+                val result = api.receiveJob(job.id, token).await()
+                if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
+            }
+        }
+        return qaJob
     }
 
 
@@ -149,7 +137,7 @@ class IbmGateway
 
             try {
                 val serverJob = receiveJob(job)
-                if (serverJob.status == StatusEnum.COMPLETED) {
+                if (serverJob?.status == StatusEnum.COMPLETED) {
                     onCompleted(serverJob)
                     break
                 }

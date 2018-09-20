@@ -10,6 +10,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Thread { Bell(getString(R.string.ibm_api_token), IbmGateway()).run() }.start()
+        Bell(getString(R.string.ibm_api_token), IbmGateway()).run()
     }
 }
