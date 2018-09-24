@@ -2,6 +2,7 @@ package eu.sesma.kuantum.cuanto.model
 
 import eu.sesma.kuantum.cuanto.network.IbmGateway
 import eu.sesma.kuantum.cuanto.network.QAsm
+import kotlinx.coroutines.experimental.runBlocking
 import java.util.Date
 
 class QADevice(var name: String) {
@@ -30,10 +31,13 @@ class QADevice(var name: String) {
     }
 
     fun submitJob(shots: Int = 1, maxCredits: Int = 1, vararg sources: QAsm): QAJob {
-        val job = QAJob(backend = this, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
-        return api?.submitJob(job)?.apply {
-            this.api = this@QADevice.api
-        } ?: throw(IllegalStateException("You have to obtain device instance from IbmGateway instance"))
+        var job = QAJob(backend = this, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
+        runBlocking {
+            job = api?.submitJob(job)?.apply {
+                this.api = this@QADevice.api
+            } ?: throw(IllegalStateException("You have to obtain device instance from IbmGateway instance"))
+        }
+        return job
     }
 
 }

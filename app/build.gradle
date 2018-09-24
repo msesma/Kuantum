@@ -14,6 +14,11 @@ android {
 
         resValue "string", "ibm_api_token", IBM_api_token
     }
+    signingConfigs {
+        debug {
+            storeFile file('../debug.keystore')
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -37,4 +42,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
     implementation "com.squareup.retrofit2:converter-gson:$converter_gson"
+//    https://github.com/JakeWharton/retrofit2-kotlin-coroutines-adapter
+//    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0'
 }

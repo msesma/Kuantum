@@ -2,20 +2,29 @@ package eu.sesma.kuantum
 
 import eu.sesma.kuantum.cuanto.*
 import eu.sesma.kuantum.cuanto.network.IbmGateway
+import kotlinx.coroutines.experimental.runBlocking
 import timber.log.Timber
 
-class Bell(private val token: String, private val qex: IbmGateway) {
+class Bell(private val apiToken: String, private val qex: IbmGateway) {
 
     fun run() {
+        Timber.d("Running bell experiment.")
+
         val qex = IbmGateway()
 
-        qex.login(token)
+        runBlocking {
+            qex.login(apiToken)
+        }
+        Timber.d("Got token: ${qex.token}")
 
-        qex.enumerateDevices()
 
-        Timber.d("Currently available:")
+        runBlocking {
+            qex.enumerateDevices()
+        }
+
+        Timber.d("Devices: ")
         qex.devices.forEach {
-            println(it)
+            Timber.d(it.toString())
         }
 
         Timber.d("\nRunning Bell state experiment")
@@ -31,11 +40,11 @@ class Bell(private val token: String, private val qex: IbmGateway) {
                 .onStatus(60,
                         { finishedJob ->
                             finishedJob.qasms?.forEach { qasm ->
-                                println(qasm.result)
+                                Timber.d(qasm.result.toString())
                             }
                         },
                         {
-                            println("Job failed")
+                            Timber.d("Job failed")
                         }
                 )
 
@@ -63,7 +72,7 @@ class Bell(private val token: String, private val qex: IbmGateway) {
                 })
                 .onStatus(500, { finishedJob ->
                     finishedJob.qasms?.forEach { qasm ->
-                        println(qasm.result)
+                        Timber.d(qasm.result.toString())
                     }
                 }, {
 

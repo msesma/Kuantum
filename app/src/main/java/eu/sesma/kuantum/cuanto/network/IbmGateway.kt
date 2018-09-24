@@ -1,10 +1,12 @@
 package eu.sesma.kuantum.cuanto.network
 
 import com.google.gson.GsonBuilder
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.model.StatusEnum
 import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.runBlocking
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeoutException
  */
 class IbmGateway {
 
-    private var token: String = ""
+    var token: String = ""
 
     private val cookies = object : CookieJar {
         var cookies = mutableListOf<Cookie>()
@@ -54,6 +56,7 @@ class IbmGateway {
             .client(okHttp)
             .baseUrl("https://quantumexperience.ng.bluemix.net")
             .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
     private val api = retrofit.create(QARetrofitInterfaceC::class.java)
 
@@ -62,44 +65,29 @@ class IbmGateway {
         get() = devices.firstOrNull { it.simulator }
                 ?: throw (IllegalStateException("Simulator not found"))
 
-    fun login(apiToken: String) {
-        suspend {
-            coroutineScope {
-                val result = api.login(apiToken).await()
-                if (result.body()?.userId?.isNotEmpty() == true) token = result.body()?.id.orEmpty()
-            }
+    suspend fun login(apiToken: String) {
+        coroutineScope {
+            val result = api.login(apiToken).await()
+            token = result.body()?.id.orEmpty()
         }
     }
 
-    fun enumerateDevices() {
-        suspend {
-            coroutineScope {
-                devices = api.listDevices(token).await().body() ?: listOf()
-                devices.forEach { it.api = this@IbmGateway }
-            }
+    suspend fun enumerateDevices() {
+        coroutineScope {
+            devices = api.listDevices(token).await().body() ?: listOf()
+            devices.forEach { it.api = this@IbmGateway }
         }
     }
 
-    fun submitJob(newJob: QAJob): QAJob? {
-        var qaJob: QAJob? = null
-        suspend {
-            qaJob = coroutineScope {
-                val result = api.sendJob(token, newJob).await()
-                if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
-            }
-        }
-        return qaJob
+    suspend fun submitJob(newJob: QAJob): QAJob? = coroutineScope {
+        val result = api.sendJob(token, newJob).await()
+        if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
     }
 
-    private fun receiveJob(job: QAJob): QAJob? {
-        var qaJob: QAJob? = null
-        suspend {
-            qaJob = coroutineScope {
-                val result = api.receiveJob(job.id, token).await()
-                if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
-            }
-        }
-        return qaJob
+
+    private suspend fun receiveJob(job: QAJob): QAJob? = coroutineScope {
+        val result = api.receiveJob(job.id, token).await()
+        if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
     }
 
 
@@ -118,7 +106,7 @@ class IbmGateway {
 
         val jobStart = Calendar.getInstance()
         var sleep = 1
-
+        var horribleWayOfDoingThings = true //TODO Fix thing this ASAP
         do {
             val elapsed = (Calendar.getInstance().timeInMillis - jobStart.timeInMillis) / 1000.0
 
@@ -136,15 +124,17 @@ class IbmGateway {
             }
 
             try {
-                val serverJob = receiveJob(job)
-                if (serverJob?.status == StatusEnum.COMPLETED) {
-                    onCompleted(serverJob)
-                    break
+                runBlocking {
+                    val serverJob = receiveJob(job)
+                    if (serverJob?.status == StatusEnum.COMPLETED) {
+                        onCompleted(serverJob)
+                        horribleWayOfDoingThings = false
+                    }
                 }
             } catch (ex: Exception) {
                 onError(ex)
                 break
             }
-        } while (true)
+        } while (horribleWayOfDoingThings)
     }
 }
