@@ -2,7 +2,7 @@ package eu.sesma.kuantum
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.IbmProvider
 
 class MainActivity : AppCompatActivity() {
 
@@ -10,6 +10,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Bell(getString(R.string.ibm_api_token), IbmGateway()).run()
+        Bell(getString(R.string.ibm_api_token), IbmProvider()).run()
     }
 }

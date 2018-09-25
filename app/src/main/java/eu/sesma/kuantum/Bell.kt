@@ -1,16 +1,16 @@
 package eu.sesma.kuantum
 
 import eu.sesma.kuantum.cuanto.*
-import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.IbmProvider
 import kotlinx.coroutines.experimental.runBlocking
 import timber.log.Timber
 
-class Bell(private val apiToken: String, private val qex: IbmGateway) {
+class Bell(private val apiToken: String, private val qex: IbmProvider) {
 
     fun run() {
         Timber.d("Running bell experiment.")
 
-        val qex = IbmGateway()
+        val qex = IbmProvider()
 
         runBlocking {
             qex.login(apiToken)
@@ -29,7 +29,7 @@ class Bell(private val apiToken: String, private val qex: IbmGateway) {
 
         Timber.d("\nRunning Bell state experiment")
         qex.simulator
-                .submitJob(256, 1, qasm {
+                ?.submitJob(256, 1, qasm {
                     qreg(2)
                     creg(5)
                     h(0)
@@ -37,7 +37,7 @@ class Bell(private val apiToken: String, private val qex: IbmGateway) {
                     measure(0, 1)
                     measure(1, 1)
                 })
-                .onStatus(60,
+                ?.onStatus(60,
                         { finishedJob ->
                             finishedJob.qasms?.forEach { qasm ->
                                 Timber.d(qasm.result.toString())
@@ -49,9 +49,8 @@ class Bell(private val apiToken: String, private val qex: IbmGateway) {
                 )
 
         Timber.d("Running quantum Fourier transform")
-        //qex.devices.firstOrNull { !it.simulator }
         qex.simulator
-                .submitJob(256, 100, qasm {
+                ?.submitJob(256, 100, qasm {
                     // quantum Fourier transform
                     qreg(4)
                     creg(4)
@@ -70,7 +69,7 @@ class Bell(private val apiToken: String, private val qex: IbmGateway) {
                     h(3)
                     measure()
                 })
-                .onStatus(500, { finishedJob ->
+                ?.onStatus(500, { finishedJob ->
                     finishedJob.qasms?.forEach { qasm ->
                         Timber.d(qasm.result.toString())
                     }

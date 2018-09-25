@@ -17,53 +17,26 @@ import java.util.concurrent.TimeoutException
 /**
  * A connection layer to an IBM Quantum Experience server.
  */
-class IbmGateway {
+class IbmProvider {
 
-    var token: String = ""
-
-    private val cookies = object : CookieJar {
-        var cookies = mutableListOf<Cookie>()
-
-        override fun saveFromResponse(p0: HttpUrl?, p1: MutableList<Cookie>) {
-            cookies = p1
-        }
-
-        override fun loadForRequest(p0: HttpUrl?): MutableList<Cookie> {
-            return cookies
-        }
-    }
-    private val interceptor = HttpLoggingInterceptor().apply {
-        this.level = HttpLoggingInterceptor.Level.BODY
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
     }
     private val okHttp = OkHttpClient.Builder()
-            .cookieJar(cookies)
-            .addInterceptor { chain ->
-                val resp = chain.proceed(chain.request())
-                val body = resp.body()?.string()
-                val newBody = ResponseBody.create(resp.body()!!.contentType(), body.orEmpty())
-
-                if (resp.code() == 400)
-                    resp.newBuilder().code(200).body(newBody).build()
-                else
-                    resp.newBuilder().body(newBody).build()
-            }
-            .addInterceptor(interceptor)
+            .addInterceptor(loggingInterceptor)
             .build()
-    private val gson = GsonBuilder()
-            .setLenient()
-            .create()
+    private val gson = GsonBuilder().create()
     private val retrofit: Retrofit = Retrofit.Builder()
             .client(okHttp)
             .baseUrl("https://quantumexperience.ng.bluemix.net")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
-    private val api = retrofit.create(QARetrofitInterfaceC::class.java)
-
+    private val api = retrofit.create(ApiInterface::class.java)
+    var token: String = ""
     var devices = listOf<QADevice>()
     val simulator
         get() = devices.firstOrNull { it.simulator }
-                ?: throw (IllegalStateException("Simulator not found"))
 
     suspend fun login(apiToken: String) {
         coroutineScope {
@@ -75,7 +48,7 @@ class IbmGateway {
     suspend fun enumerateDevices() {
         coroutineScope {
             devices = api.listDevices(token).await().body() ?: listOf()
-            devices.forEach { it.api = this@IbmGateway }
+            devices.forEach { it.api = this@IbmProvider }
         }
     }
 
@@ -84,10 +57,9 @@ class IbmGateway {
         if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
     }
 
-
     private suspend fun receiveJob(job: QAJob): QAJob? = coroutineScope {
         val result = api.receiveJob(job.id, token).await()
-        if (result.body()?.error == null) result.body()!! else throw RuntimeException("${result.body()?.error?.message}")
+        if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
     }
 
 

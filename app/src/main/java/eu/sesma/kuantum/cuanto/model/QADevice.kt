@@ -1,6 +1,6 @@
 package eu.sesma.kuantum.cuanto.model
 
-import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
 import kotlinx.coroutines.experimental.runBlocking
 import java.util.Date
@@ -24,7 +24,7 @@ class QADevice(var name: String) {
     var allowQObject: Boolean = false
 
     @Transient
-    var api: IbmGateway? = null
+    var api: IbmProvider? = null
 
     override fun toString(): String {
         return "$name - $description, status: $status, real:${!simulator}, qbits:$nQubits, gates:$basisGates"
@@ -35,7 +35,7 @@ class QADevice(var name: String) {
         runBlocking {
             job = api?.submitJob(job)?.apply {
                 this.api = this@QADevice.api
-            } ?: throw(IllegalStateException("You have to obtain device instance from IbmGateway instance"))
+            } ?: throw(IllegalStateException("You have to obtain device instance from IbmProvider instance"))
         }
         return job
     }

@@ -1,6 +1,6 @@
 package eu.sesma.kuantum.cuanto.model
 
-import eu.sesma.kuantum.cuanto.network.IbmGateway
+import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
 import java.util.*
 
@@ -18,7 +18,7 @@ open class QAJob (
         var calibration: QACalibration? = null,
         var error : QAError? = null,
         @Transient
-        var api: IbmGateway? = null
+        var api: IbmProvider? = null
 ) {
     override fun toString(): String {
         return "$backend, id:$id, status:$status"
