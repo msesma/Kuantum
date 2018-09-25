@@ -23,21 +23,8 @@ class QADevice(var name: String) {
     var url: String = ""
     var allowQObject: Boolean = false
 
-    @Transient
-    var api: IbmProvider? = null
-
     override fun toString(): String {
         return "$name - $description, status: $status, real:${!simulator}, qbits:$nQubits, gates:$basisGates"
-    }
-
-    fun submitJob(shots: Int = 1, maxCredits: Int = 1, vararg sources: QAsm): QAJob {
-        var job = QAJob(backend = this, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
-        runBlocking {
-            job = api?.submitJob(job)?.apply {
-                this.api = this@QADevice.api
-            } ?: throw(IllegalStateException("You have to obtain device instance from IbmProvider instance"))
-        }
-        return job
     }
 
 }

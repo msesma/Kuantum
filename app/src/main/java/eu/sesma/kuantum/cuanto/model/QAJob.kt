@@ -23,11 +23,6 @@ open class QAJob (
     override fun toString(): String {
         return "$backend, id:$id, status:$status"
     }
-
-    fun onStatus(timeoutSeconds : Int, onCompleted: (QAJob) -> Unit,
-                 onError: (Throwable) -> Unit = {}) {
-        api?.onJobStatus(this,timeoutSeconds,onCompleted,onError) ?: throw(IllegalStateException("You have to obtain QAJob instance from submitJob method"))
-    }
 }
 
 enum class StatusEnum {
