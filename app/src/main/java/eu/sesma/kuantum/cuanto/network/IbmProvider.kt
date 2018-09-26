@@ -10,9 +10,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-/**
- * A connection layer to an IBM Quantum Experience server.
- */
 class IbmProvider {
 
     companion object {
@@ -44,65 +41,30 @@ class IbmProvider {
         }
     }
 
-    suspend fun getDevices(token: String): List<QADevice> = coroutineScope {
-        api.listDevices(token).await().body() ?: listOf()
+    suspend fun getDevices(token: String): Either<String, List<QADevice>> = coroutineScope {
+        val result = api.listDevices(token).await()
+        when {
+            result.code() != 200 -> Either.Left(result.code().toString())
+            result.body() == null -> Either.Left(UNKNOWN)
+            else -> Either.Right(result.body() ?: emptyList())
+        }
     }
 
-    suspend fun submitJob(token: String, newJob: QAJob): QAJob? = coroutineScope {
+    suspend fun submitJob(token: String, newJob: QAJob): Either<String, QAJob> = coroutineScope {
         val result = api.sendJob(token, newJob).await()
-        if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
+        when {
+            result.code() != 200 -> Either.Left(result.code().toString())
+            result.body()?.error == null -> Either.Right(result.body() ?: QAJob())
+            else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
+        }
     }
 
-    suspend fun receiveJob(token: String, job: QAJob): QAJob? = coroutineScope {
+    suspend fun receiveJob(token: String, job: QAJob): Either<String, QAJob> = coroutineScope {
         val result = api.receiveJob(job.id, token).await()
-        if (result.body()?.error == null) result.body() else throw RuntimeException("${result.body()?.error?.message}")
+        when {
+            result.code() != 200 -> Either.Left(result.code().toString())
+            result.body()?.error == null -> Either.Right(result.body() ?: QAJob())
+            else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
+        }
     }
-
-
-    /**
-     *
-     * Callback for receiving results of a job
-     *
-     * @param job a job to fetch from the server
-     * @param maxTime fail if this waiting time is reached
-     */
-//    fun onJobStatus(
-//            job: QAJob,
-//            maxTime: Int,
-//            onCompleted: (QAJob) -> Unit,
-//            onError: (Throwable) -> Unit = {}) {
-//
-//        val jobStart = Calendar.getInstance()
-//        var sleep = 1
-//        var horribleWayOfDoingThings = true //TODO Fix thing this ASAP
-//        do {
-//            val elapsed = (Calendar.getInstance().timeInMillis - jobStart.timeInMillis) / 1000.0
-//
-//            if (sleep > maxTime) {
-//                onError(TimeoutException("timeout waiting for a completed job: ${elapsed}s"))
-//                break
-//            } else {
-//                try {
-//                    Thread.sleep((sleep * 1000.0).toLong())
-//                    sleep++
-//                } catch (e: InterruptedException) {
-//                    onError(e)
-//                    break
-//                }
-//            }
-//
-//            try {
-//                runBlocking {
-//                    val serverJob = receiveJob(job)
-//                    if (serverJob?.status == StatusEnum.COMPLETED) {
-//                        onCompleted(serverJob)
-//                        horribleWayOfDoingThings = false
-//                    }
-//                }
-//            } catch (ex: Exception) {
-//                onError(ex)
-//                break
-//            }
-//        } while (horribleWayOfDoingThings)
-//    }
 }

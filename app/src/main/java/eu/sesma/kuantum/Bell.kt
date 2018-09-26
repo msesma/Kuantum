@@ -2,19 +2,20 @@ package eu.sesma.kuantum
 
 import eu.sesma.kuantum.cuanto.*
 import eu.sesma.kuantum.cuanto.network.IbmProvider
+import timber.log.Timber
 
 class Bell(private val apiKey: String, private val qex: IbmProvider) {
 
     fun run() {
-        Timber.d("Running Bell state experiment.")
 
-        if (!IbmRepository.init(apiKey)) {
-            Timber.d("Cannot contact IBM Quantum Experience")
+        if (!JobInteractor.init(apiKey)) {
+            Timber.d("Cannot contact IBM Quantum Experience: ${JobInteractor.lastError}")
             return
         }
-        val device = IbmRepository.simulator
+        val device = JobInteractor.simulator
 
-        val jobBell = IbmRepository.submitJob(device, 256, 1, qasm {
+        Timber.d("Running Bell state experiment.")
+        val jobBell = JobInteractor.submitJob(device, 256, 1, qasm {
             qreg(2)
             creg(5)
             h(0)
@@ -22,20 +23,17 @@ class Bell(private val apiKey: String, private val qex: IbmProvider) {
             measure(0, 1)
             measure(1, 1)
         })
-        IbmRepository.onStatus(jobBell, 60,
+
+        JobInteractor.onStatus(jobBell, 60,
                 { finishedJob ->
                     finishedJob.qasms?.forEach { qasm ->
                         Timber.d(qasm.result.toString())
                     }
-                },
-                {
-                    Timber.d("Job failed")
-                }
+                }, { error -> Timber.d(error) }
         )
 
         Timber.d("Running quantum Fourier transform")
-        val jobFt = IbmRepository.submitJob(device, 256, 100, qasm {
-            // quantum Fourier transform
+        val jobFt = JobInteractor.submitJob(device, 256, 100, qasm {
             qreg(4)
             creg(4)
             x(0)
@@ -53,12 +51,11 @@ class Bell(private val apiKey: String, private val qex: IbmProvider) {
             h(3)
             measure()
         })
-        IbmRepository.onStatus(jobFt, 500, { finishedJob ->
+
+        JobInteractor.onStatus(jobFt, 500, { finishedJob ->
             finishedJob.qasms?.forEach { qasm ->
                 Timber.d(qasm.result.toString())
             }
-        }, {
-
-        })
+        }, { error -> Timber.d(error) })
     }
 }

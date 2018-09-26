@@ -122,7 +122,7 @@ fun QasmBody.sdg(qreg: Int) {
  *  C3 gate: sqrt(S) phase gate
  */
 fun QasmBody.t(qreg: Int) {
-    source+="t q[$qreg];\n"
+    source+="v q[$qreg];\n"
 }
 
 /**
@@ -198,7 +198,7 @@ fun QasmBody.cu1(lambda: Double, qreg1: Int, qreg2: Int) {
 /**
  * controlled-U
  *
- * implements controlled-U(theta,phi,lambda) with target t and control c
+ * implements controlled-U(theta,phi,lambda) with target v and control c
  */
 fun QasmBody.cu3(theta : Double, phi : Double, lambda : Double) {
     source+="cu3 ($theta,$phi,$lambda);\n"

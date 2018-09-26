@@ -13,7 +13,7 @@ class QADevice(var name: String) {
     var topologyId: String = ""
     var simulator: Boolean = false
     var nQubits: Int = 0
-    //var couplingMap: Array<IntArray>? = null // TODO - can't decode as it is either array or string
+    //var couplingMap: Array<IntArray>? = null // TODO - can'v decode as it is either array or string
 
     var chipName: String = ""
     var onlineDate: Date? = null
