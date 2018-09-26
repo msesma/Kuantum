@@ -5,5 +5,4 @@ data class QAError(
         var status: Int = 0,
         var message: String = "",
         val statusCode: Int = 0,
-        var code: String = ""
-)
+        var code: String = "")

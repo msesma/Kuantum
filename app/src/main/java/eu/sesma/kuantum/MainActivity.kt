@@ -1,7 +1,7 @@
 package eu.sesma.kuantum
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 
 class MainActivity : AppCompatActivity() {

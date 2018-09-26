@@ -32,8 +32,8 @@ task clean(type: Delete) {
 
 ext {
     coroutines='0.26.1'
-    support = '28.0.0'
-    constraint = '1.1.3'
+    appcompat = '1.0.0'
+    constraint = '2.0.0-alpha2'
     retrofit = '2.4.0'
     converter_gson = '2.4.0'
     okhttp = '3.11.0'
