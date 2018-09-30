@@ -41,16 +41,6 @@ class IbmProvider {
         }
     }
 
-
-    suspend fun login2(apiToken: String): Either<String, String> = coroutineScope {
-        val result = api.login(apiToken).await()
-        when {
-            result.code() != 200 -> Either.Left(result.code().toString())
-            result.body()?.id?.isNotEmpty() == true -> Either.Right(result.body()?.id.orEmpty())
-            else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
-        }
-    }
-
     suspend fun getDevices(token: String): Either<String, List<QADevice>> = coroutineScope {
         val result = api.listDevices(token).await()
         when {
