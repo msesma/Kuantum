@@ -65,4 +65,82 @@ class CoroutinePracticeUnitTest {
         delay(1300L) // just quit after delay
     }
 
+    @Test
+    fun test4() = runBlocking<Unit> {
+        //does not work as explained in https://github.com/Kotlin/kotlinx.coroutines/blob/master/docs/composing-suspending-functions.md
+        try {
+            failedConcurrentSum()
+        } catch (e: ArithmeticException) {
+            println("Computation failed with ArithmeticException")
+        }
+    }
+
+    suspend fun failedConcurrentSum(): Int = coroutineScope {
+        val one = async<Int> {
+            try {
+                println("first child starts a long job")
+                delay(5000) // Emulates very long computation
+                42
+            } catch (e: Exception) {
+                println("First child was cancelled")
+                0
+            }
+        }
+        val two = async<Int> {
+            println("Second child throws an exception")
+            throw ArithmeticException()
+        }
+        one.await() + two.await()
+    }
+
+    @Test
+    fun test5 ()= runBlocking {
+        val job = launch {
+            val child = launch {
+                try {
+                    delay(Long.MAX_VALUE)
+                } finally {
+                    println("Child is cancelled")
+                }
+            }
+            yield()
+            println("Cancelling child")
+            child.cancel()
+            child.join()
+            yield()
+            println("Parent is not cancelled")
+        }
+        job.join()
+    }
+
+
+//    @Test
+//    fun test6 () = runBlocking {
+//        val supervisor = SupervisorJob()
+//        with(CoroutineScope(coroutineContext + supervisor)) {
+//            // launch the first child -- its exception is ignored for this example (don't do this in practise!)
+//            val firstChild = launch(CoroutineExceptionHandler { _, _ ->  }) {
+//                println("First child is failing")
+//                throw AssertionError("First child is cancelled")
+//            }
+//            // launch the second child
+//            val secondChild = launch {
+//                firstChild.join()
+//                // Cancellation of the first child is not propagated to the second child
+//                println("First child is cancelled: ${firstChild.isCancelled}, but second one is still active")
+//                try {
+//                    delay(Long.MAX_VALUE)
+//                } finally {
+//                    // But cancellation of the supervisor is propagated
+//                    println("Second child is cancelled because supervisor is cancelled")
+//                }
+//            }
+//            // wait until the first child fails & completes
+//            firstChild.join()
+//            println("Cancelling supervisor")
+//            supervisor.cancel()
+//            secondChild.join()
+//        }
+//    }
+
 }

@@ -15,7 +15,8 @@ import kotlin.coroutines.experimental.CoroutineContext
 class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
 
     private val coroutineJob = Job()
-    override val coroutineContext: CoroutineContext = Dispatchers.Default + coroutineJob
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + coroutineJob +
+            CoroutineExceptionHandler { _, exception -> println("Caught $exception") }
 
     companion object {
         private var token: String = ""
