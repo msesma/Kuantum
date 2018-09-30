@@ -3,20 +3,24 @@ package eu.sesma.kuantum.cuanto
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAError
 import eu.sesma.kuantum.cuanto.model.QAJob
-import eu.sesma.kuantum.cuanto.model.StatusEnum
 import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.*
 import timber.log.Timber
-import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.experimental.CoroutineContext
 
 
-object JobInteractor {
+class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
 
-    private var token: String = ""
-    private var devices: List<QADevice> = emptyList()
-    private val qex = IbmProvider()
+    private val coroutineJob = Job()
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + coroutineJob
+
+    companion object {
+        private var token: String = ""
+        private var devices: List<QADevice> = emptyList()
+    }
 
     val simulator
         get() = devices.first { it.simulator }
@@ -26,7 +30,7 @@ object JobInteractor {
     fun init(apiKey: String): Boolean {
         if (devices.isNotEmpty()) return true
 
-        runBlocking {
+        runBlocking(coroutineContext) {
             val result = qex.login(apiKey)
             when (result) {
                 is Either.Left -> {
@@ -39,7 +43,7 @@ object JobInteractor {
         if (token.isEmpty()) return false
         Timber.d("Got token: $token")
 
-        runBlocking {
+        runBlocking(coroutineContext) {
             val result = qex.getDevices(token)
             when (result) {
                 is Either.Left -> {
@@ -61,7 +65,7 @@ object JobInteractor {
                   vararg sources: QAsm): QAJob {
         val job = QAJob(backend = device, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
 
-        return runBlocking {
+        return runBlocking(coroutineContext) {
             val result = qex.submitJob(token, job)
             when (result) {
                 is Either.Left -> {
@@ -74,43 +78,30 @@ object JobInteractor {
         }
     }
 
-    //TODO Fix thing this ASAP
     fun onStatus(job: QAJob,
                  timeoutSeconds: Int,
                  onCompleted: (QAJob) -> Unit,
                  onError: (String) -> Unit) {
-        job ?: return
-        val jobStart = Calendar.getInstance()
-        var sleep = 1
-        var horribleWayOfDoingThings = true
-        do {
-            val elapsed = (Calendar.getInstance().timeInMillis - jobStart.timeInMillis) / 1000.0
 
-            if (sleep > timeoutSeconds) {
-                onError("timeout waiting for a completed job: ${elapsed}s")
-                break
-            } else {
-                Thread.sleep((sleep * 1000.0).toLong())
-                sleep++
-            }
-
-            runBlocking {
+        repeat(timeoutSeconds) {
+            runBlocking(coroutineContext) {
                 val result = qex.receiveJob(token, job)
                 when (result) {
                     is Either.Left -> {
-                        lastError = "Get status error: ${result.v}"
+                        lastError = "Get status result: ${result.v}"
                         Timber.d(lastError)
                         onError(result.v)
+                        delay(TimeUnit.SECONDS.toMillis(1))
                     }
                     is Either.Right -> {
                         onCompleted(result.v)
-                        if (result.v.status == StatusEnum.COMPLETED) {
-                            horribleWayOfDoingThings = false
-                        }
                     }
                 }
             }
+        }
+    }
 
-        } while (horribleWayOfDoingThings)
+    fun onDestroy() {
+        coroutineJob.cancel()
     }
 }
