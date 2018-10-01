@@ -4,11 +4,13 @@ import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAJob
+import eu.sesma.kuantum.cuanto.model.StatusEnum
 import kotlinx.coroutines.experimental.coroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 
 class IbmProvider {
 
@@ -61,9 +63,11 @@ class IbmProvider {
 
     suspend fun receiveJob(token: String, job: QAJob): Either<String, QAJob> = coroutineScope {
         val result = api.receiveJob(job.id, token).await()
+        Timber.d("${result.code()}, ${result.body()?.error}, ${result.body()}")
         when {
             result.code() != 200 -> Either.Left(result.code().toString())
-            result.body()?.error == null -> Either.Right(result.body() ?: QAJob())
+            result.body()?.status == StatusEnum.RUNNING -> Either.Left("Running")
+            result.body()?.status == StatusEnum.COMPLETED -> Either.Right(result.body() ?: QAJob())
             else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
         }
     }

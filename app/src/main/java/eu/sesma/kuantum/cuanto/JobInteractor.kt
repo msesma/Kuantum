@@ -27,7 +27,7 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
         get() = devices.first { it.simulator }
     var lastError: String = ""
 
-    @Synchronized
+
     fun init(apiKey: String): Boolean {
         if (devices.isNotEmpty()) return true
 
@@ -83,9 +83,9 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                  timeoutSeconds: Int,
                  onCompleted: (QAJob) -> Unit,
                  onError: (String) -> Unit) {
-
-        repeat(timeoutSeconds) {
-            runBlocking(coroutineContext) {
+        val repeatJob = Job(coroutineJob)
+        launch(repeatJob) {
+            repeat(timeoutSeconds) {
                 val result = qex.receiveJob(token, job)
                 when (result) {
                     is Either.Left -> {
@@ -96,6 +96,7 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                     }
                     is Either.Right -> {
                         onCompleted(result.v)
+                        repeatJob.cancel()
                     }
                 }
             }
