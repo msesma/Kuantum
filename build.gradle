@@ -31,7 +31,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    coroutines = '0.26.1'
+    coroutines = '0.30.0'
     appcompat = '1.0.0'
     constraint = '2.0.0-alpha2'
     retrofit = '2.4.0'

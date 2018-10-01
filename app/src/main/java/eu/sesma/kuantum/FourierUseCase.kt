@@ -5,7 +5,7 @@ import timber.log.Timber
 
 class FourierUseCase(private val interactor: JobInteractor) {
 
-    fun run() {
+    fun run(console: (String) -> Unit) {
         val device = interactor.simulator
 
         Timber.d("Running quantum Fourier transform")
@@ -27,10 +27,12 @@ class FourierUseCase(private val interactor: JobInteractor) {
             h(3)
             measure()
         })
+        console(jobFt.toString())
 
         interactor.onStatus(jobFt, 500, { finishedJob ->
             finishedJob.qasms?.forEach { qasm ->
                 Timber.d(qasm.result.toString())
+                console(qasm.result.toString())
             }
         }, { error -> Timber.d(error) })
     }
