@@ -3,13 +3,14 @@ package eu.sesma.kuantum
 import eu.sesma.kuantum.cuanto.*
 import timber.log.Timber
 
-class FourierUseCase(private val interactor: JobInteractor) {
+class FourierUseCase(private val interactor: JobInteractor,
+                     private val console: (String) -> Unit) {
 
-    fun run(console: (String) -> Unit) {
+    fun run() {
         val device = interactor.simulator
 
         Timber.d("Running quantum Fourier transform")
-        val jobFt = interactor.submitJob(device, 256, 100, qasm {
+        val qasm = qasm {
             qreg(4)
             creg(4)
             x(0)
@@ -26,7 +27,12 @@ class FourierUseCase(private val interactor: JobInteractor) {
             cu1(Math.PI / 2, 3, 2)
             h(3)
             measure()
-        })
+        }
+        val jobFt = interactor.submitJob(
+                device = device,
+                shots = 256,
+                maxCredits = 100,
+                sources = *arrayOf(qasm))
         console(jobFt.toString())
 
         interactor.onStatus(jobFt, 500, { finishedJob ->

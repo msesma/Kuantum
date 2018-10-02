@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bell() {
-        GlobalScope.launch { BellUseCase(interactor).run(::console) }
+        GlobalScope.launch { BellUseCase(interactor, ::console).run() }
     }
 
     private fun fourier() {
-        GlobalScope.launch { FourierUseCase(interactor).run(::console) }
+        GlobalScope.launch { FourierUseCase(interactor, ::console).run() }
     }
 
     private fun enableButtons(enable: Boolean) {
@@ -58,6 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun console(text: String) {
-        tv_result.text = "${tv_result.text}$text\n"
+        runOnUiThread {tv_result.text = "${tv_result.text}$text\n\n"}
     }
 }
