@@ -94,7 +94,7 @@ class CoroutinePracticeUnitTest {
     }
 
     @Test
-    fun test5 ()= runBlocking {
+    fun test5() = runBlocking {
         val job = launch {
             val child = launch {
                 try {
@@ -114,11 +114,11 @@ class CoroutinePracticeUnitTest {
     }
 
     @Test
-    fun test6 () = runBlocking {
+    fun test6() = runBlocking {
         val supervisor = SupervisorJob()
         with(CoroutineScope(coroutineContext + supervisor)) {
             // launch the first child -- its exception is ignored for this example (don't do this in practise!)
-            val firstChild = launch(CoroutineExceptionHandler { _, _ ->  }) {
+            val firstChild = launch(CoroutineExceptionHandler { _, _ -> }) {
                 println("First child is failing")
                 throw AssertionError("First child is cancelled")
             }

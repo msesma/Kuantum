@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Kuantum</string>
+    <string name="connected">Connected</string>
+    <string name="connecting">Connecting…</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="bell">Bell</string>
+    <string name="fourier">Fourier</string>
 </resources>
