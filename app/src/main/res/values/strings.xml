@@ -5,4 +5,5 @@
     <string name="disconnected">Disconnected</string>
     <string name="bell">Bell</string>
     <string name="fourier">Fourier</string>
+    <string name="ghz">ghz</string>
 </resources>

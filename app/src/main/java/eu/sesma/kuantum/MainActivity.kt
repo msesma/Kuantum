@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.network.IbmProvider
+import eu.sesma.kuantum.experiments.BellExperiment
+import eu.sesma.kuantum.experiments.FourierExperiment
+import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
@@ -22,8 +25,8 @@ class MainActivity : AppCompatActivity() {
         tv_connected.setOnClickListener { connect() }
 
         bt_bell.setOnClickListener { bell() }
-
         bt_fourier.setOnClickListener { fourier() }
+        bt_ghz.setOnClickListener { ghz() }
     }
 
     override fun onDestroy() {
@@ -44,11 +47,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bell() {
-        GlobalScope.launch { BellUseCase(interactor, ::console).run() }
+        GlobalScope.launch { BellExperiment(interactor, ::console).run() }
     }
 
     private fun fourier() {
-        GlobalScope.launch { FourierUseCase(interactor, ::console).run() }
+        GlobalScope.launch { FourierExperiment(interactor, ::console).run() }
+    }
+
+    private fun ghz() {
+        GlobalScope.launch { GhzExperiment(interactor, ::console).run() }
     }
 
     private fun enableButtons(enable: Boolean) {
@@ -58,6 +65,6 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun console(text: String) {
-        runOnUiThread {tv_result.text = "${tv_result.text}$text\n\n"}
+        runOnUiThread { tv_result.text = "${tv_result.text}$text\n\n" }
     }
 }

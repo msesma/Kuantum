@@ -1,15 +1,15 @@
-package eu.sesma.kuantum
+package eu.sesma.kuantum.experiments
 
 import eu.sesma.kuantum.cuanto.*
 import timber.log.Timber
 
-class FourierUseCase(private val interactor: JobInteractor,
-                     private val console: (String) -> Unit) {
+class FourierExperiment(private val interactor: JobInteractor,
+                        private val console: (String) -> Unit) {
 
     fun run() {
         val device = interactor.simulator
 
-        Timber.d("Running quantum Fourier transform")
+        Timber.d("Running quantum Fourier transform experiment.")
         val qasm = qasm {
             qreg(4)
             creg(4)

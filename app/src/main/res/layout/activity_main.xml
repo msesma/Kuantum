@@ -50,8 +50,19 @@
         android:text="@string/fourier"
         android:enabled="false"
         app:layout_constraintBottom_toTopOf="@+id/tv_result"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bt_ghz"
         app:layout_constraintStart_toEndOf="@+id/bt_bell"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <Button
+        android:id="@+id/bt_ghz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ghz"
+        android:enabled="false"
+        app:layout_constraintBottom_toTopOf="@+id/tv_result"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bt_fourier"
         app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
