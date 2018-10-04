@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.model.QAData
+import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runExperiment() {
+        enableUx(false)
         console(experiments[selected].qasm.qasm)
         GlobalScope.launch { experiments[selected].run() }
     }
@@ -86,9 +88,18 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread { tv_code.text = "${tv_code.text}$text\n\n" }
     }
 
-    //TODO show result as a bar graph
     @SuppressLint("SetTextI18n")
-    private fun result(data: QAData?) {
-        runOnUiThread { tv_code.text = "${tv_code.text}$data\n\n" }
+    private fun result(result: Either<String, QAData>) {
+        when (result) {
+            is Either.Left -> runOnUiThread {
+                tv_result.text = "${result.v}\n"
+                enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
+            }
+            is Either.Right -> runOnUiThread {
+                enableUx(true)
+                //TODO show result as a bar graph
+                tv_result.text = "${result.v}\n"
+            }
+        }
     }
 }
