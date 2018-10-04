@@ -3,7 +3,5 @@
     <string name="connected">Connected</string>
     <string name="connecting">Connecting…</string>
     <string name="disconnected">Disconnected</string>
-    <string name="bell">Bell</string>
-    <string name="fourier">Fourier</string>
-    <string name="ghz">ghz</string>
+    <string name="run">Run</string>
 </resources>

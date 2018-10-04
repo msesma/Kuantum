@@ -5,7 +5,7 @@ import eu.sesma.kuantum.cuanto.*
 class FourierExperiment(interactor: JobInteractor,
                         console: (String) -> Unit) : Experiment(interactor, console) {
 
-    override val describe = "Running quantum Fourier transform experiment."
+    override val describe = "Quantum Fourier transform experiment."
 
     override val qasm = qasm {
         qreg(4)

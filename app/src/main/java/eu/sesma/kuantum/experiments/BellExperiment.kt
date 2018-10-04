@@ -5,7 +5,7 @@ import eu.sesma.kuantum.cuanto.*
 class BellExperiment(interactor: JobInteractor,
                      console: (String) -> Unit) : Experiment(interactor, console) {
 
-    override val describe = "Running Bell state experiment."
+    override val describe = "Bell state experiment."
 
     override val qasm = qasm {
         qreg(2)         //qreg q[2];

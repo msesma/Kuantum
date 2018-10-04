@@ -2,6 +2,9 @@ package eu.sesma.kuantum
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.network.IbmProvider
@@ -18,15 +21,21 @@ class MainActivity : AppCompatActivity() {
     private val provider = IbmProvider()
     private val interactor = JobInteractor(provider)
 
+    private val bell = BellExperiment(interactor, ::console)
+    private val fourier = FourierExperiment(interactor, ::console)
+    private val ghz = GhzExperiment(interactor, ::console)
+    private val experiments = listOf(bell, fourier, ghz)
+
+    private var selected = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        tv_connected.setOnClickListener { connect() }
+        bt_connected.setOnClickListener { connect() }
+        bt_run.setOnClickListener { runExperiment() }
 
-        bt_bell.setOnClickListener { bell() }
-        bt_fourier.setOnClickListener { fourier() }
-        bt_ghz.setOnClickListener { ghz() }
+        initExperimentSpinner()
     }
 
     override fun onDestroy() {
@@ -34,37 +43,44 @@ class MainActivity : AppCompatActivity() {
         interactor.onDestroy()
     }
 
+    private fun initExperimentSpinner() {
+        val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, experiments)
+        with(sp_experiment) {
+            adapter = arrayAdapter
+            setSelection(selected)
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    selected = position
+                }
+            }
+        }
+    }
+
     private fun connect() {
-        tv_connected.setText(R.string.connecting)
+        bt_connected.setText(R.string.connecting)
         if (!interactor.init(getString(R.string.ibm_api_token))) {
             Timber.d("Cannot contact IBM Quantum Experience: ${interactor.lastError}")
-            tv_connected.setText(R.string.disconnected)
-            enableButtons(false)
+            bt_connected.setText(R.string.disconnected)
+            enableUx(false)
             return
         }
-        enableButtons(true)
-        tv_connected.setText(R.string.connected)
+        enableUx(true)
+        bt_connected.setText(R.string.connected)
     }
 
-    private fun bell() {
-        GlobalScope.launch { BellExperiment(interactor, ::console).run() }
+    private fun runExperiment() {
+        GlobalScope.launch { experiments[selected].run() }
     }
 
-    private fun fourier() {
-        GlobalScope.launch { FourierExperiment(interactor, ::console).run() }
-    }
-
-    private fun ghz() {
-        GlobalScope.launch { GhzExperiment(interactor, ::console).run() }
-    }
-
-    private fun enableButtons(enable: Boolean) {
-        bt_bell.isEnabled = enable
-        bt_fourier.isEnabled = enable
+    private fun enableUx(enable: Boolean) {
+        bt_run.isEnabled = enable
+        sp_device.isEnabled = enable
     }
 
     @SuppressLint("SetTextI18n")
     private fun console(text: String) {
-        runOnUiThread { tv_result.text = "${tv_result.text}$text\n\n" }
+        runOnUiThread { tv_code.text = "${tv_code.text}$text\n\n" }
     }
 }

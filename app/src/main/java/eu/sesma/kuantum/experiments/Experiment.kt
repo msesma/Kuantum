@@ -31,4 +31,6 @@ abstract class Experiment(private val interactor: JobInteractor,
                 }, { error -> Timber.d(error) }
         )
     }
+
+    override fun toString(): String = describe
 }

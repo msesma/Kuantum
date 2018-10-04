@@ -5,7 +5,7 @@ import eu.sesma.kuantum.cuanto.*
 class GhzExperiment(interactor: JobInteractor,
                     console: (String) -> Unit) : Experiment(interactor, console) {
 
-    override val describe = "Running GHZ experiment XXY."
+    override val describe = "GHZ experiment XXY."
 
     override val qasm = qasm {
         qreg(3)         //qreg q[3];
