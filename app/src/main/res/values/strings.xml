@@ -4,4 +4,5 @@
     <string name="connecting">Connecting…</string>
     <string name="disconnected">Disconnected</string>
     <string name="run">Run</string>
+    <string name="result">Results</string>
 </resources>

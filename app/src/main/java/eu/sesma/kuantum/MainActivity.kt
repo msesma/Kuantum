@@ -7,6 +7,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.JobInteractor
+import eu.sesma.kuantum.cuanto.model.QAData
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
@@ -21,9 +22,9 @@ class MainActivity : AppCompatActivity() {
     private val provider = IbmProvider()
     private val interactor = JobInteractor(provider)
 
-    private val bell = BellExperiment(interactor, ::console)
-    private val fourier = FourierExperiment(interactor, ::console)
-    private val ghz = GhzExperiment(interactor, ::console)
+    private val bell = BellExperiment(interactor, ::result)
+    private val fourier = FourierExperiment(interactor, ::result)
+    private val ghz = GhzExperiment(interactor, ::result)
     private val experiments = listOf(bell, fourier, ghz)
 
     private var selected = 0
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runExperiment() {
+        console(experiments[selected].qasm.qasm)
         GlobalScope.launch { experiments[selected].run() }
     }
 
@@ -82,5 +84,11 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun console(text: String) {
         runOnUiThread { tv_code.text = "${tv_code.text}$text\n\n" }
+    }
+
+    //TODO show result as a bar graph
+    @SuppressLint("SetTextI18n")
+    private fun result(data: QAData?) {
+        runOnUiThread { tv_code.text = "${tv_code.text}$data\n\n" }
     }
 }

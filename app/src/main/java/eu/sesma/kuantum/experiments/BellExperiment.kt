@@ -1,9 +1,10 @@
 package eu.sesma.kuantum.experiments
 
 import eu.sesma.kuantum.cuanto.*
+import eu.sesma.kuantum.cuanto.model.QAData
 
 class BellExperiment(interactor: JobInteractor,
-                     console: (String) -> Unit) : Experiment(interactor, console) {
+                     console: (QAData?) -> Unit) : Experiment(interactor, console) {
 
     override val describe = "Bell state experiment."
 
