@@ -2,6 +2,7 @@ package eu.sesma.kuantum.experiments
 
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.model.QAData
+import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.QAsm
 import timber.log.Timber
@@ -13,10 +14,9 @@ abstract class Experiment(private val interactor: JobInteractor,
     abstract val describe: String
     abstract val qasm: QAsm
 
-    fun run() {
+    fun run(device: QADevice) {
         Timber.d(describe)
 
-        val device = interactor.simulator
         val jobQ = interactor.submitJob(
                 device = device,
                 shots = 1024,

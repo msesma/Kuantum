@@ -27,6 +27,14 @@
         app:layout_constraintStart_toEndOf="@id/bt_connected"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/experiment"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/sp_experiment"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
     <Spinner
         android:id="@+id/sp_experiment"
         android:layout_width="match_parent"
@@ -36,6 +44,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bt_connected"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/device"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/sp_device"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <Spinner
         android:id="@+id/sp_device"
