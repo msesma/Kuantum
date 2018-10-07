@@ -3,6 +3,8 @@ package eu.sesma.kuantum
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import eu.sesma.kuantum.cuanto.JobInteractor
@@ -14,7 +16,9 @@ import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
 import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 
@@ -50,6 +54,14 @@ class MainActivity : AppCompatActivity() {
         with(sp_experiment) {
             adapter = arrayAdapter
             setSelection(0)
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    console(experiments[position].qasm.qasm)
+                }
+            }
         }
     }
 
@@ -79,9 +91,8 @@ class MainActivity : AppCompatActivity() {
     private fun runExperiment() {
         enableUx(false)
         val experiment = experiments[sp_experiment.selectedItemPosition]
-        console(experiment.qasm.qasm)
         val device = interactor.devices[sp_device.selectedItemPosition]
-        GlobalScope.launch { experiment.run(device) }
+        GlobalScope.launch(Dispatchers.Main) { experiment.run(device) }
     }
 
     private fun enableUx(enable: Boolean) {
@@ -91,17 +102,17 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun console(text: String) {
-        runOnUiThread { tv_code.text = "$text\n\n" }
+        tv_code.text = "$text\n\n"
     }
 
     @SuppressLint("SetTextI18n")
     private fun result(result: Either<String, QAData>) {
         when (result) {
-            is Either.Left -> runOnUiThread {
+            is Either.Left -> {
                 tv_result.text = "${result.v}\n"
                 enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
             }
-            is Either.Right -> runOnUiThread {
+            is Either.Right -> {
                 enableUx(true)
                 //TODO show result as a bar graph
                 tv_result.text = "${result.v}\n"
