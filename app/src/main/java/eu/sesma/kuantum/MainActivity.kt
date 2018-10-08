@@ -16,14 +16,16 @@ import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
 import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
+import kotlin.coroutines.experimental.CoroutineContext
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+    protected lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
 
     private val provider = IbmProvider()
     private val interactor = JobInteractor(provider)
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        job = Job()
 
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
@@ -92,7 +95,8 @@ class MainActivity : AppCompatActivity() {
         enableUx(false)
         val experiment = experiments[sp_experiment.selectedItemPosition]
         val device = interactor.devices[sp_device.selectedItemPosition]
-        GlobalScope.launch(Dispatchers.Main) { experiment.run(device) }
+        experiment.run(device)
+//        GlobalScope.launch(Dispatchers.IO) { experiment.run(device) }
     }
 
     private fun enableUx(enable: Boolean) {
@@ -107,17 +111,17 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun result(result: Either<String, QAData>) {
-        when (result) {
-            is Either.Left -> {
-                runOnUiThread { tv_result.text = "${result.v}\n" }
-//                tv_result.text = "${result.v}\n"
-                enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
-            }
-            is Either.Right -> {
-                enableUx(true)
-                //TODO show result as a bar graph
-                runOnUiThread { tv_result.text = "${result.v}\n" }
-//                tv_result.text = "${result.v}\n"
+        launch(Dispatchers.Main) {
+            when (result) {
+                is Either.Left -> {
+                    tv_result.text = "${result.v}\n"
+                    enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
+                }
+                is Either.Right -> {
+                    enableUx(true)
+                    //TODO show result as a bar graph
+                    tv_result.text = "${result.v}\n"
+                }
             }
         }
     }
