@@ -111,7 +111,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     @SuppressLint("SetTextI18n")
     private fun result(result: Either<String, QAData>) {
+        Timber.d("Result outside ${Thread.currentThread()}")
         launch(Dispatchers.Main) {
+            Timber.d("Result inside ${Thread.currentThread()}")
             when (result) {
                 is Either.Left -> {
                     tv_result.text = "${result.v}\n"
