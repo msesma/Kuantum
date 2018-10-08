@@ -109,13 +109,15 @@ class MainActivity : AppCompatActivity() {
     private fun result(result: Either<String, QAData>) {
         when (result) {
             is Either.Left -> {
-                tv_result.text = "${result.v}\n"
+                runOnUiThread { tv_result.text = "${result.v}\n" }
+//                tv_result.text = "${result.v}\n"
                 enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
             }
             is Either.Right -> {
                 enableUx(true)
                 //TODO show result as a bar graph
-                tv_result.text = "${result.v}\n"
+                runOnUiThread { tv_result.text = "${result.v}\n" }
+//                tv_result.text = "${result.v}\n"
             }
         }
     }
