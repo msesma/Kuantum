@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +18,11 @@ import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
 import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import kotlin.coroutines.experimental.CoroutineContext
 
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private val provider = IbmProvider()
     private val interactor = JobInteractor(provider)
+    private val graph = Graph()
 
     private val bell = BellExperiment(interactor, ::result)
     private val fourier = FourierExperiment(interactor, ::result)
@@ -116,13 +122,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             Timber.d("Result inside ${Thread.currentThread()}")
             when (result) {
                 is Either.Left -> {
+                    im_result.visibility = INVISIBLE
                     tv_result.text = "${result.v}\n"
                     enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
                 }
                 is Either.Right -> {
                     enableUx(true)
-                    //TODO show result as a bar graph
-                    tv_result.text = "${result.v}\n"
+                    graph.drawResult(im_result, result.v)
+                    im_result.visibility = VISIBLE
+//                    tv_result.text = "${result.v}\n"
                 }
             }
         }
