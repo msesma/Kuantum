@@ -71,13 +71,13 @@
         android:background="@color/gray"
         android:scrollbars="vertical"
         android:singleLine="false"
-        app:layout_constraintBottom_toTopOf="@id/im_result"
+        app:layout_constraintBottom_toTopOf="@id/bar_result"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sp_device"/>
 
-    <ImageView
-        android:id="@+id/im_result"
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/bar_result"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -95,9 +95,9 @@
         android:layout_height="0dp"
         android:background="@color/gray"
         android:contentDescription="@string/result"
-        app:layout_constraintBottom_toBottomOf="@+id/im_result"
-        app:layout_constraintEnd_toEndOf="@+id/im_result"
-        app:layout_constraintStart_toStartOf="@+id/im_result"
-        app:layout_constraintTop_toTopOf="@+id/im_result"/>
+        app:layout_constraintBottom_toBottomOf="@+id/bar_result"
+        app:layout_constraintEnd_toEndOf="@+id/bar_result"
+        app:layout_constraintStart_toStartOf="@+id/bar_result"
+        app:layout_constraintTop_toTopOf="@+id/bar_result"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

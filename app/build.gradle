@@ -38,6 +38,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constraint"
 
     implementation "com.jakewharton.timber:timber:$timber"
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
     implementation "com.squareup.okhttp3:okhttp:$converter_gson"
     implementation "com.squareup.retrofit2:retrofit:$retrofit"

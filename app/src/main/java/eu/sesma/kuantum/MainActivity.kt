@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_main)
         job = Job()
 
-        // im_result.visibility= VISIBLE
-        // tv_result.visibility=INVISIBLE
-        // bt_connected.setOnClickListener { graph.drawResult(im_result, QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))) }
+//        bar_result.visibility= VISIBLE
+//         tv_result.visibility=INVISIBLE
+//         bt_connected.setOnClickListener { graph.drawResult(bar_result, QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))) }
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
         tv_code.movementMethod = ScrollingMovementMethod()
@@ -125,15 +125,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             Timber.d("Result inside ${Thread.currentThread()}")
             when (result) {
                 is Either.Left -> {
-                    im_result.visibility = INVISIBLE
+                    bar_result.visibility = INVISIBLE
                     tv_result.visibility = VISIBLE
                     tv_result.text = "${result.v}\n"
                     enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
                 }
                 is Either.Right -> {
                     enableUx(true)
-                    graph.drawResult(im_result, result.v)
-                    im_result.visibility = VISIBLE
+                    graph.drawResult(bar_result, result.v)
+                    bar_result.visibility = VISIBLE
                     tv_result.visibility = INVISIBLE
 //                    tv_result.text = "${result.v}\n"
                 }
