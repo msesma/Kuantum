@@ -18,11 +18,8 @@ import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
 import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.Main
-import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import kotlin.coroutines.experimental.CoroutineContext
 
@@ -86,26 +83,30 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun connect() {
+        bt_connected.isEnabled = false
         bt_connected.setText(R.string.connecting)
-        if (!interactor.init(getString(R.string.ibm_api_token))) {
-            Timber.d("Cannot contact IBM Quantum Experience: ${interactor.lastError}")
-            bt_connected.setText(R.string.disconnected)
-            initDeviceSpinner(emptyList())
-            enableUx(false)
-            return
+        launch(Dispatchers.IO) {
+            if (!interactor.init(getString(R.string.ibm_api_token))) {
+                Timber.d("Cannot contact IBM Quantum Experience: ${interactor.lastError}")
+                bt_connected.setText(R.string.disconnected)
+                initDeviceSpinner(emptyList())
+                enableUx(false)
+                bt_connected.isEnabled = true
+                return@launch
+            }
+            launch(Dispatchers.Main) {
+                initDeviceSpinner(interactor.devices)
+                enableUx(true)
+                bt_connected.setText(R.string.connected)
+            }
         }
-        initDeviceSpinner(interactor.devices)
-        enableUx(true)
-        bt_connected.setText(R.string.connected)
-
     }
 
     private fun runExperiment() {
         enableUx(false)
         val experiment = experiments[sp_experiment.selectedItemPosition]
         val device = interactor.devices[sp_device.selectedItemPosition]
-        experiment.run(device)
-//        GlobalScope.launch(Dispatchers.IO) { experiment.run(device) }
+        launch(Dispatchers.IO) { experiment.run(device) }
     }
 
     private fun enableUx(enable: Boolean) {
@@ -135,7 +136,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                     graph.drawResult(bar_result, result.v)
                     bar_result.visibility = VISIBLE
                     tv_result.visibility = INVISIBLE
-//                    tv_result.text = "${result.v}\n"
                 }
             }
         }
