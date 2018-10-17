@@ -45,7 +45,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_main)
         job = Job()
 
-        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+        setGraphDimension()
+
+        //lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
 
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
@@ -144,9 +146,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private fun showHistogram() {
         val data = lastData ?: return
-        bar_result.visibility = if (bar_result.visibility == INVISIBLE){
+        bar_result.visibility = if (bar_result.visibility == INVISIBLE) {
             graph.drawResult(bar_result, data)
             VISIBLE
         } else INVISIBLE
+    }
+
+    private fun setGraphDimension() {
+        bar_result.onGlobalLayout {
+            with(bar_result) {
+                val offset = (height - width) * 1.1f //TODO calculate correct offset
+                val params = layoutParams
+                params.width = height
+                params.height = width
+                layoutParams = params
+                translationY = -offset;
+            }
+        }
     }
 }
