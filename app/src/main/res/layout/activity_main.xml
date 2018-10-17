@@ -71,33 +71,45 @@
         android:background="@color/gray"
         android:scrollbars="vertical"
         android:singleLine="false"
-        app:layout_constraintBottom_toTopOf="@id/bar_result"
+        app:layout_constraintBottom_toTopOf="@id/tv_result"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sp_device"/>
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/bar_result"
+    <TextView
+        android:id="@+id/tv_result"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="50dp"
         android:background="@color/gray"
         android:contentDescription="@string/result"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bt_graph"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_code"/>
 
-    <TextView
-        android:id="@+id/tv_result"
+    <Button
+        android:id="@+id/bt_graph"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="@string/histogram"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_result"/>
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/bar_result"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:background="@color/gray"
         android:contentDescription="@string/result"
-        app:layout_constraintBottom_toBottomOf="@+id/bar_result"
-        app:layout_constraintEnd_toEndOf="@+id/bar_result"
-        app:layout_constraintStart_toStartOf="@+id/bar_result"
-        app:layout_constraintTop_toTopOf="@+id/bar_result"/>
+        android:visibility="invisible"
+        android:layout_marginBottom="48dp"
+        android:elevation="2dp"
+        android:rotation="90"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

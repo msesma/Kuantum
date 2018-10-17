@@ -38,16 +38,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private val ghz = GhzExperiment(interactor, ::result)
     private val experiments = listOf(bell, fourier, ghz)
 
+    private var lastData: QAData? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         job = Job()
 
-//        bar_result.visibility= VISIBLE
-//         tv_result.visibility=INVISIBLE
-//         bt_connected.setOnClickListener { graph.drawResult(bar_result, QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))) }
+        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
+        bt_graph.setOnClickListener { showHistogram() }
         tv_code.movementMethod = ScrollingMovementMethod()
 
         initExperimentSpinner()
@@ -112,6 +114,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun enableUx(enable: Boolean) {
         bt_run.isEnabled = enable
         sp_device.isEnabled = enable
+        bt_graph.isEnabled = enable
     }
 
     @SuppressLint("SetTextI18n")
@@ -127,17 +130,23 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             when (result) {
                 is Either.Left -> {
                     bar_result.visibility = INVISIBLE
-                    tv_result.visibility = VISIBLE
                     tv_result.text = "${result.v}\n"
                     enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
                 }
                 is Either.Right -> {
                     enableUx(true)
-                    graph.drawResult(bar_result, result.v)
-                    bar_result.visibility = VISIBLE
-                    tv_result.visibility = INVISIBLE
+                    tv_result.text = "${result.v}\n"
+                    lastData = result.v
                 }
             }
         }
+    }
+
+    private fun showHistogram() {
+        val data = lastData ?: return
+        bar_result.visibility = if (bar_result.visibility == INVISIBLE){
+            graph.drawResult(bar_result, data)
+            VISIBLE
+        } else INVISIBLE
     }
 }
