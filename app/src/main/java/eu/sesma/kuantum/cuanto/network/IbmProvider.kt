@@ -1,11 +1,11 @@
 package eu.sesma.kuantum.cuanto.network
 
 import com.google.gson.GsonBuilder
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.model.StatusEnum
-import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.coroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

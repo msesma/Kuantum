@@ -1,6 +1,6 @@
 package eu.sesma.kuantum
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.junit.Test
 
 /**

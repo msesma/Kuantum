@@ -3,7 +3,7 @@ package eu.sesma.kuantum.cuanto.network
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.model.QALoginResponse
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import retrofit2.Response
 import retrofit2.http.*
 

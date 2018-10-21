@@ -6,10 +6,10 @@ import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 
 class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
