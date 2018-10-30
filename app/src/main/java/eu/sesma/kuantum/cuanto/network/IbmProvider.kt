@@ -1,5 +1,6 @@
 package eu.sesma.kuantum.cuanto.network
 
+import arrow.core.Either
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import eu.sesma.kuantum.cuanto.model.QADevice

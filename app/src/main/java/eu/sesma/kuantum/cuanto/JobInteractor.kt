@@ -1,9 +1,9 @@
 package eu.sesma.kuantum.cuanto
 
+import arrow.core.Either
 import eu.sesma.kuantum.cuanto.model.QADevice
 import eu.sesma.kuantum.cuanto.model.QAError
 import eu.sesma.kuantum.cuanto.model.QAJob
-import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
 import kotlinx.coroutines.*
@@ -30,10 +30,10 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
             val result = qex.login(apiKey)
             when (result) {
                 is Either.Left -> {
-                    lastError = "Login error: ${result.v}"
+                    lastError = "Login error: ${result.a}"
                     Timber.d(lastError)
                 }
-                is Either.Right -> token = result.v
+                is Either.Right-> token = result.b
             }
         }
         if (token.isEmpty()) return false
@@ -43,10 +43,10 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
             val result = qex.getDevices(token)
             when (result) {
                 is Either.Left -> {
-                    lastError = "Get devices error: ${result.v}"
+                    lastError = "Get devices error: ${result.a}"
                     Timber.d(lastError)
                 }
-                is Either.Right -> devices = result.v
+                is Either.Right -> devices = result.b
             }
         }
         Timber.d("Devices: ")
@@ -65,11 +65,11 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
             val result = qex.submitJob(token, job)
             when (result) {
                 is Either.Left -> {
-                    lastError = "Submit job error: ${result.v}"
+                    lastError = "Submit job error: ${result.a}"
                     Timber.d(lastError)
-                    QAJob(error = QAError(message = result.v))
+                    QAJob(error = QAError(message = result.a))
                 }
-                is Either.Right -> result.v
+                is Either.Right -> result.b
             }
         }
     }
@@ -84,13 +84,13 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                 val result = qex.receiveJob(token, job)
                 when (result) {
                     is Either.Left -> {
-                        lastError = "Get status result: ${result.v}"
+                        lastError = "Get status result: ${result.a}"
                         Timber.d(lastError)
-                        onError(result.v)
+                        onError(result.a)
                         delay(TimeUnit.SECONDS.toMillis(1))
                     }
                     is Either.Right -> {
-                        onCompleted(result.v)
+                        onCompleted(result.b)
                         repeatJob.cancel()
                     }
                 }

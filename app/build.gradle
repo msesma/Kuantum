@@ -27,10 +27,6 @@ android {
     }
 }
 
-androidExtensions {
-    experimental = true
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
@@ -41,6 +37,7 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:$timber"
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    implementation "io.arrow-kt:arrow-core:$arrow_version"
 
     implementation "com.squareup.okhttp3:okhttp:$converter_gson"
     implementation "com.squareup.retrofit2:retrofit:$retrofit"

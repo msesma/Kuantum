@@ -1,9 +1,9 @@
 package eu.sesma.kuantum.experiments
 
+import arrow.core.Either
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.model.QAData
 import eu.sesma.kuantum.cuanto.model.QADevice
-import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.QAsm
 import timber.log.Timber
 

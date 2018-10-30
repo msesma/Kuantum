@@ -1,8 +1,8 @@
 package eu.sesma.kuantum.experiments
 
+import arrow.core.Either
 import eu.sesma.kuantum.cuanto.*
 import eu.sesma.kuantum.cuanto.model.QAData
-import eu.sesma.kuantum.cuanto.network.Either
 
 class BellExperiment(interactor: JobInteractor,
                      result: (Either<String, QAData>) -> Unit) : Experiment(interactor, result) {

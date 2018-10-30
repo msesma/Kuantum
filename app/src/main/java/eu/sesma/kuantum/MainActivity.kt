@@ -9,10 +9,10 @@ import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import arrow.core.Either
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.model.QAData
 import eu.sesma.kuantum.cuanto.model.QADevice
-import eu.sesma.kuantum.cuanto.network.Either
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
@@ -134,13 +134,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             when (result) {
                 is Either.Left -> {
                     bar_result.visibility = INVISIBLE
-                    tv_result.text = "${result.v}\n"
-                    enableUx(result.v != "running") //TODO Create a enum or sealed class of errors
+                    tv_result.text = "${result.a}\n"
+                    enableUx(result.a != "running") //TODO Create a enum or sealed class of errors
                 }
                 is Either.Right -> {
                     enableUx(true)
-                    tv_result.text = "${result.v}\n"
-                    lastData = result.v
+                    tv_result.text = "${result.b}\n"
+                    lastData = result.b
                 }
             }
         }

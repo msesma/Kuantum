@@ -33,6 +33,7 @@ ext {
     converter_gson = '2.4.0'
     okhttp = '3.11.0'
     timber = '4.7.0'
+    arrow_version = '0.7.3'
 
     junit = '4.11'
     mockito = '2.7.14'
