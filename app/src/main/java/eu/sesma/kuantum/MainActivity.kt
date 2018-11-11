@@ -18,10 +18,7 @@ import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
 import eu.sesma.kuantum.experiments.GhzExperiment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
@@ -50,7 +47,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         setGraphDimension()
 
-//        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+//        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//Test
         enableUx(false)
         fab.hide()
 
@@ -108,7 +105,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 bt_connected.isEnabled = true
                 return@launch
             }
-            launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 initDeviceSpinner(interactor.devices)
                 enableUx(true)
                 bt_connected.setText(R.string.connected)
@@ -138,19 +135,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         Timber.d("Result outside ${Thread.currentThread()}")
         launch(Dispatchers.Main) {
             Timber.d("Result inside ${Thread.currentThread()}")
-            when (result) {
-                is Either.Left -> {
-                    bar_result.visibility = INVISIBLE
-                    tv_result.text = "${result.a}\n"
-                    enableUx(result.a != "Running") //TODO Create a enum or sealed class of errors
-                }
-                is Either.Right -> {
-                    enableUx(true)
-                    fab.show()
-                    tv_result.text = "${result.b}\n"
-                    lastData = result.b
-                }
-            }
+            result.fold({ error ->
+                bar_result.visibility = INVISIBLE
+                tv_result.text = "$error\n"
+                enableUx(error != "Running") //TODO Create a enum or sealed class of errors
+            }, { data ->
+                enableUx(true)
+                fab.show()
+                tv_result.text = "$data\n"
+                lastData = data
+            })
         }
     }
 
