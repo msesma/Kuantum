@@ -28,6 +28,8 @@ class Graph {
             }
         }
 
+        barChart.description.isEnabled = false
+
         val xAxis = barChart.xAxis
         xAxis.granularity = 1f // minimum axis-step (interval) is 1
         xAxis.valueFormatter = formatter
@@ -40,7 +42,7 @@ class Graph {
         yAxisR.axisMinimum = 0f
         yAxisR.axisMaximum = 1f
 
-        val dataSet = BarDataSet(entries, "Result")
+        val dataSet = BarDataSet(entries, barChart.context.getString(R.string.probability))
         dataSet.color = Color.YELLOW
         barChart.data = BarData(dataSet)
         barChart.invalidate()

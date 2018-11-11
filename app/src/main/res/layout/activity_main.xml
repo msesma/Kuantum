@@ -5,13 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/bt_connected"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/disconnected"
         app:layout_constraintEnd_toStartOf="@+id/bt_run"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,69 +23,72 @@
         android:layout_height="wrap_content"
         android:enabled="false"
         android:text="@string/run"
+
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/bt_connected"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/experiment"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/sp_experiment"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"/>
 
     <Spinner
         android:id="@+id/sp_experiment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@+id/bt_connected"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/device"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/sp_device"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"/>
 
     <Spinner
         android:id="@+id/sp_device"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@+id/sp_experiment"/>
 
     <TextView
         android:id="@+id/tv_code"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="32dp"
         android:background="@color/gray"
         android:scrollbars="vertical"
         android:singleLine="false"
         app:layout_constraintBottom_toTopOf="@id/tv_result"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@+id/sp_device"/>
 
     <TextView
         android:id="@+id/tv_result"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:background="@color/gray"
         android:contentDescription="@string/result"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@+id/tv_code"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -105,12 +108,26 @@
         android:layout_height="match_parent"
         android:background="@color/gray"
         android:contentDescription="@string/result"
-        android:visibility="invisible"
         android:elevation="2dp"
         android:rotation="90"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="parent"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="16dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

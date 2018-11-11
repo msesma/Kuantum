@@ -4,7 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
-import android.view.View.*
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -149,19 +150,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         val data = lastData ?: return
         bar_result.visibility = if (bar_result.visibility == INVISIBLE) {
             graph.drawResult(bar_result, data)
+            fab.rotation = 90F
             VISIBLE
-        } else INVISIBLE
+        } else {
+            fab.rotation = 0F
+            INVISIBLE
+        }
     }
 
     private fun setGraphDimension() {
         bar_result.onGlobalLayout {
             with(bar_result) {
-                val offset = (height - width) * 1.1f //TODO calculate correct offset
                 val params = layoutParams
                 params.width = height
                 params.height = width
                 layoutParams = params
-                translationY = -offset
+                translationY = -height / 2f
             }
         }
     }
