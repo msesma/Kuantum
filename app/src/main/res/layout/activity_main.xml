@@ -83,20 +83,21 @@
         android:background="@color/gray"
         android:contentDescription="@string/result"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/bt_graph"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_code"/>
 
-    <Button
-        android:id="@+id/bt_graph"
-        android:layout_width="150dp"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/histogram"
-        android:elevation="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_chart"
+        app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_result"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/bar_result"

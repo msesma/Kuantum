@@ -4,8 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -49,11 +48,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         setGraphDimension()
 
-        //lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
 
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
-        bt_graph.setOnClickListener { showHistogram() }
+        fab.setOnClickListener { showHistogram() }
         tv_code.movementMethod = ScrollingMovementMethod()
 
         initExperimentSpinner()
@@ -118,7 +117,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun enableUx(enable: Boolean) {
         bt_run.isEnabled = enable
         sp_device.isEnabled = enable
-        bt_graph.isEnabled = enable
+        if (enable) fab.show() else fab.hide()
     }
 
     @SuppressLint("SetTextI18n")
