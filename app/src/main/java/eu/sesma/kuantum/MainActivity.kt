@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private val experiments = listOf(bell, fourier, ghz)
 
     private var lastData: QAData? = null
+    private var lastExperiment = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +50,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
         setGraphDimension()
 
-        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+//        lastData = QAData(counts = mapOf(Pair("00000", 300), Pair("00001", 700)))//TODO Test
+        enableUx(false)
+        fab.hide()
 
         bt_connected.setOnClickListener { connect() }
         bt_run.setOnClickListener { runExperiment() }
@@ -74,6 +77,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 }
 
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    if (position == lastExperiment) return
+                    lastExperiment = position
+                    tv_result.text = ""
+                    lastData = null
+                    fab.hide()
                     console(experiments[position].qasm.qasm)
                 }
             }
@@ -118,7 +126,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private fun enableUx(enable: Boolean) {
         bt_run.isEnabled = enable
         sp_device.isEnabled = enable
-        if (enable) fab.show() else fab.hide()
     }
 
     @SuppressLint("SetTextI18n")
@@ -135,10 +142,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 is Either.Left -> {
                     bar_result.visibility = INVISIBLE
                     tv_result.text = "${result.a}\n"
-                    enableUx(result.a != "running") //TODO Create a enum or sealed class of errors
+                    enableUx(result.a != "Running") //TODO Create a enum or sealed class of errors
                 }
                 is Either.Right -> {
                     enableUx(true)
+                    fab.show()
                     tv_result.text = "${result.b}\n"
                     lastData = result.b
                 }
