@@ -23,10 +23,10 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
     var lastError: String = ""
 
 
-    fun init(apiKey: String): Boolean {
+    suspend fun init(apiKey: String): Boolean {
         if (devices.isNotEmpty()) return true
 
-        runBlocking(coroutineContext) {
+        async {
             val result = qex.login(apiKey)
             when (result) {
                 is Either.Left -> {
@@ -35,11 +35,11 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                 }
                 is Either.Right-> token = result.b
             }
-        }
+        }.await()
         if (token.isEmpty()) return false
         Timber.d("Got token: $token")
 
-        runBlocking(coroutineContext) {
+        async {
             val result = qex.getDevices(token)
             when (result) {
                 is Either.Left -> {
@@ -48,20 +48,20 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                 }
                 is Either.Right -> devices = result.b
             }
-        }
+        }.await()
         Timber.d("Devices: ")
         devices.forEach { Timber.d(it.toString()) }
 
         return devices.isNotEmpty()
     }
 
-    fun submitJob(device: QADevice,
+    suspend fun submitJob(device: QADevice,
                   shots: Int = 1,
                   maxCredits: Int = 1,
                   vararg sources: QAsm): QAJob {
         val job = QAJob(backend = device, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
 
-        return runBlocking(coroutineContext) {
+        return async {
             val result = qex.submitJob(token, job)
             when (result) {
                 is Either.Left -> {
@@ -71,10 +71,10 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                 }
                 is Either.Right -> result.b
             }
-        }
+        }.await()
     }
 
-    fun onStatus(job: QAJob,
+    suspend fun onStatus(job: QAJob,
                  timeoutSeconds: Int,
                  onCompleted: (QAJob) -> Unit,
                  onError: (String) -> Unit) {

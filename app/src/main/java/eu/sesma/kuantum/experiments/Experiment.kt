@@ -14,7 +14,7 @@ abstract class Experiment(private val interactor: JobInteractor,
     abstract val describe: String
     abstract val qasm: QAsm
 
-    fun run(device: QADevice) {
+    suspend fun run(device: QADevice) {
         Timber.d(describe)
 
         val jobQ = interactor.submitJob(
