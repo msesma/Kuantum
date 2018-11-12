@@ -2,7 +2,6 @@ package eu.sesma.kuantum.cuanto
 
 import arrow.core.Either
 import eu.sesma.kuantum.cuanto.model.QADevice
-import eu.sesma.kuantum.cuanto.model.QAError
 import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.cuanto.network.QAsm
@@ -33,7 +32,7 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
                     lastError = "Login error: ${result.a}"
                     Timber.d(lastError)
                 }
-                is Either.Right-> token = result.b
+                is Either.Right -> token = result.b
             }
         }.await()
         if (token.isEmpty()) return false
@@ -56,46 +55,37 @@ class JobInteractor(private val qex: IbmProvider) : CoroutineScope {
     }
 
     suspend fun submitJob(device: QADevice,
-                  shots: Int = 1,
-                  maxCredits: Int = 1,
-                  vararg sources: QAsm): QAJob {
-        val job = QAJob(backend = device, shots = shots, maxCredits = maxCredits, qasms = listOf(*sources))
+                          shots: Int = 1,
+                          maxCredits: Int = 1,
+                          vararg sources: QAsm): Either<String, QAJob> {
+        val job = QAJob(
+                backend = device,
+                shots = shots,
+                maxCredits = maxCredits,
+                qasms = listOf(*sources))
 
-        return async {
-            val result = qex.submitJob(token, job)
-            when (result) {
-                is Either.Left -> {
-                    lastError = "Submit job error: ${result.a}"
-                    Timber.d(lastError)
-                    QAJob(error = QAError(message = result.a))
-                }
-                is Either.Right -> result.b
-            }
-        }.await()
+        return async { qex.submitJob(token, job) }.await()
     }
 
-    suspend fun onStatus(job: QAJob,
-                 timeoutSeconds: Int,
-                 onCompleted: (QAJob) -> Unit,
-                 onError: (String) -> Unit) {
+    suspend fun onStatus(job: Either<String, QAJob>,
+                         timeoutSeconds: Int): Either<String, QAJob> {
+        if (job.isLeft()) return job
         val repeatJob = Job(coroutineJob)
-        launch(repeatJob) {
+        lateinit var result: Either<String, QAJob>
+        async (repeatJob) {
             repeat(timeoutSeconds) {
-                val result = qex.receiveJob(token, job)
-                when (result) {
-                    is Either.Left -> {
-                        lastError = "Get status result: ${result.a}"
-                        Timber.d(lastError)
-                        onError(result.a)
-                        delay(TimeUnit.SECONDS.toMillis(1))
-                    }
-                    is Either.Right -> {
-                        onCompleted(result.b)
-                        repeatJob.cancel()
-                    }
-                }
+                result = qex.receiveJob(token, job)
+                result.fold({
+                    lastError = "Get status result: $it"
+                    Timber.d(lastError)
+                    delay(TimeUnit.SECONDS.toMillis(1))
+                    yield()
+                }, {
+                    repeatJob.cancel()
+                })
             }
-        }
+        }.await()
+        return result
     }
 
     fun onDestroy() {

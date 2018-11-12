@@ -62,14 +62,17 @@ class IbmProvider {
         }
     }
 
-    suspend fun receiveJob(token: String, job: QAJob): Either<String, QAJob> = coroutineScope {
-        val result = api.receiveJob(job.id, token).await()
-        Timber.d("${result.code()}, ${result.body()?.error}, ${result.body()}")
-        when {
-            result.code() != 200 -> Either.Left(result.code().toString())
-            result.body()?.status == StatusEnum.RUNNING -> Either.Left("Running")
-            result.body()?.status == StatusEnum.COMPLETED -> Either.Right(result.body() ?: QAJob())
-            else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
-        }
+    suspend fun receiveJob(token: String, job: Either<String, QAJob>): Either<String, QAJob> = coroutineScope {
+        job.fold({ job }, {
+            val result = api.receiveJob(it.id, token).await()
+            Timber.d("${result.code()}, ${result.body()?.error}, ${result.body()}")
+            when {
+                result.code() != 200 -> Either.Left(result.code().toString())
+                result.body()?.status == StatusEnum.RUNNING -> Either.Left("Running")
+                result.body()?.status == StatusEnum.COMPLETED -> Either.Right(result.body()
+                        ?: QAJob())
+                else -> Either.Left(result.body()?.error?.message ?: UNKNOWN)
+            }
+        })
     }
 }

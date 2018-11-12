@@ -1,11 +1,8 @@
 package eu.sesma.kuantum.experiments
 
-import arrow.core.Either
 import eu.sesma.kuantum.cuanto.*
-import eu.sesma.kuantum.cuanto.model.QAData
 
-class FourierExperiment(interactor: JobInteractor,
-                        result: (Either<String, QAData>) -> Unit) : Experiment(interactor, result) {
+class FourierExperiment(interactor: JobInteractor) : Experiment(interactor) {
 
     override val describe = "Quantum Fourier transform experiment."
 

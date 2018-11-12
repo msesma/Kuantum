@@ -13,6 +13,7 @@ import arrow.core.Either
 import eu.sesma.kuantum.cuanto.JobInteractor
 import eu.sesma.kuantum.cuanto.model.QAData
 import eu.sesma.kuantum.cuanto.model.QADevice
+import eu.sesma.kuantum.cuanto.model.QAJob
 import eu.sesma.kuantum.cuanto.network.IbmProvider
 import eu.sesma.kuantum.experiments.BellExperiment
 import eu.sesma.kuantum.experiments.FourierExperiment
@@ -32,9 +33,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private val interactor = JobInteractor(provider)
     private val graph = Graph()
 
-    private val bell = BellExperiment(interactor, ::result)
-    private val fourier = FourierExperiment(interactor, ::result)
-    private val ghz = GhzExperiment(interactor, ::result)
+    private val bell = BellExperiment(interactor)
+    private val fourier = FourierExperiment(interactor)
+    private val ghz = GhzExperiment(interactor)
     private val experiments = listOf(bell, fourier, ghz)
 
     private var lastData: QAData? = null
@@ -117,7 +118,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         enableUx(false)
         val experiment = experiments[sp_experiment.selectedItemPosition]
         val device = interactor.devices[sp_device.selectedItemPosition]
-        launch(Dispatchers.IO) { experiment.run(device) }
+        launch(Dispatchers.IO) {
+            val result = experiment.run(device)
+            withContext(Dispatchers.Main) {
+                result(result = result)
+            }
+        }
     }
 
     private fun enableUx(enable: Boolean) {
@@ -131,19 +137,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun result(result: Either<String, QAData>) {
+    private fun result(result: Either<String, QAJob>) {
         Timber.d("Result outside ${Thread.currentThread()}")
+
         launch(Dispatchers.Main) {
             Timber.d("Result inside ${Thread.currentThread()}")
+
             result.fold({ error ->
                 bar_result.visibility = INVISIBLE
                 tv_result.text = "$error\n"
                 enableUx(error != "Running") //TODO Create a enum or sealed class of errors
-            }, { data ->
-                enableUx(true)
-                fab.show()
-                tv_result.text = "$data\n"
-                lastData = data
+            }, { job ->
+                job.qasms?.get(0)?.let { qasm ->
+                    val data = qasm.result?.data ?: QAData()
+                    Timber.d(qasm.result.toString())
+                    enableUx(true)
+                    fab.show()
+                    tv_result.text = "$data\n"
+                    lastData = data
+                }
             })
         }
     }
