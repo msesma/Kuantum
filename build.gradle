@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.3.0'
+    ext.kotlin_version = '1.3.20'
     repositories {
         google()
         jcenter {
@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath 'com.android.tools.build:gradle:3.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -28,12 +28,12 @@ task clean(type: Delete) {
 ext {
     coroutines = '1.0.0'
     appcompat = '1.0.2'
-    material='1.1.0-alpha02'
+    material='1.1.0-alpha03'
     constraint = '2.0.0-alpha3'
     retrofit = '2.4.0'
     converter_gson = '2.4.0'
     okhttp = '3.11.0'
-    timber = '4.7.0'
+    timber = '4.7.1'
     arrow_version = '0.7.3'
 
     junit = '4.11'
